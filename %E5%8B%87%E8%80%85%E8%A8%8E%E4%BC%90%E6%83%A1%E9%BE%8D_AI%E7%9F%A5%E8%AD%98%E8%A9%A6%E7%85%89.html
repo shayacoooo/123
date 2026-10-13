@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勇者討伐惡龍｜AI 知識試煉</title>
+<style>
+:root{--bg:#101426;--panel:#1b223b;--gold:#ffd166;--red:#ff5d73;--green:#5de2a5;--text:#f4f6ff;--muted:#aab3d1}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 50% 0,#34345f 0,#151a30 48%,#0c1020 100%);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;min-height:100vh;display:flex;justify-content:center;padding:20px}
+.game{width:min(980px,100%)} header{text-align:center;margin-bottom:18px} .eyebrow{color:var(--gold);letter-spacing:3px;font-size:.8rem;font-weight:800} h1{margin:5px 0;font-size:clamp(1.8rem,5vw,3rem)} .sub{color:var(--muted);margin:0}
+.arena{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px;background:linear-gradient(135deg,#232b49,#171c32);border:1px solid #444e76;border-radius:22px;padding:18px;overflow:hidden;box-shadow:0 18px 50px #0005}
+.fighter{text-align:center;position:relative;padding:10px 12px 16px;background:#0d1327a8;border:1px solid #343d61;border-radius:16px;min-width:0}
+.name{font-weight:900;font-size:1.1rem}.role{font-size:.78rem;color:var(--muted)} .sprite{height:128px;display:flex;align-items:center;justify-content:center;font-size:clamp(4.5rem,10vw,6.5rem);filter:drop-shadow(0 8px 8px #0007);transition:transform .2s}
+.hp-label{display:flex;justify-content:space-between;font-size:.83rem;margin:2px 0 7px}.bar{height:13px;background:#080c19;border-radius:20px;overflow:hidden;border:1px solid #414969}.fill{height:100%;width:100%;border-radius:20px;transition:width .65s ease;background:linear-gradient(90deg,#35d49b,#8cf0a9)}.dragon-fill{background:linear-gradient(90deg,#ff536c,#ff9b5c)}
+.combat-text{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);font-weight:1000;font-size:clamp(1.4rem,5vw,2.8rem);color:var(--gold);text-shadow:0 3px 12px #000;white-space:nowrap;opacity:0;pointer-events:none}
+.combat-text.show{animation:pop .9s ease forwards}@keyframes pop{0%{opacity:0;transform:translate(-50%,0) scale(.5)}25%{opacity:1;transform:translate(-50%,-20px) scale(1.2)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-65px) scale(.9)}}
+.hero.attack{animation:heroAttack .65s ease}.dragon.attack{animation:dragonAttack .65s ease}.hurt{animation:hurt .45s ease}
+@keyframes heroAttack{0%,100%{transform:translateX(0) rotate(0)}35%{transform:translateX(36px) rotate(12deg) scale(1.15)}}
+@keyframes dragonAttack{0%,100%{transform:translateX(0) rotate(0)}35%{transform:translateX(-36px) rotate(-10deg) scale(1.15)}}
+@keyframes hurt{0%,100%{filter:brightness(1)}35%{filter:brightness(2) sepia(1) saturate(5);transform:translateX(5px)}}
+.status{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0;color:var(--muted);font-size:.9rem}
+.question-card{background:#f5f3ee;color:#1b2035;border-radius:20px;padding:clamp(18px,4vw,28px);box-shadow:0 14px 35px #0003}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.pill{background:#e5e7f1;color:#414866;border-radius:99px;padding:6px 12px;font-size:.8rem;font-weight:800}.qtext{font-size:clamp(1.1rem,2.6vw,1.45rem);font-weight:850;line-height:1.6;margin:12px 0 18px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}.answer{border:2px solid #d9dbea;border-radius:12px;background:white;color:#252a41;padding:13px 14px;text-align:left;font:inherit;font-weight:700;cursor:pointer;transition:.15s;min-height:58px}.answer:hover:not(:disabled){border-color:#7c6ee6;background:#f1efff;transform:translateY(-2px)}.answer:disabled{cursor:default;opacity:.85}.answer.correct{border-color:#1aa875;background:#dff8ec}.answer.wrong{border-color:#e34e62;background:#ffe4e7}
+.feedback{min-height:30px;margin:14px 0 4px;font-weight:800}.feedback.good{color:#087c50}.feedback.bad{color:#bd2f43}.nextrow{display:flex;justify-content:flex-end}.primary{background:#6256d9;color:white;border:0;border-radius:12px;padding:12px 22px;font:inherit;font-weight:850;cursor:pointer;box-shadow:0 5px 0 #40379c}.primary:hover{filter:brightness(1.08)}.primary:disabled{opacity:.4;cursor:not-allowed}
+.end{display:none;text-align:center;padding:28px 18px;background:#f5f3ee;color:#1b2035;border-radius:20px}.end.show{display:block}.end-emoji{font-size:5rem}.end h2{font-size:2rem;margin:0 0 8px}.end p{color:#555d78}.score-big{font-size:2.2rem;font-weight:1000;color:#6256d9;margin:12px}.small{font-size:.85rem;color:var(--muted);text-align:center;margin-top:16px}
+@media(max-width:600px){body{padding:12px}.arena{padding:10px;gap:8px}.fighter{padding:8px 7px}.sprite{height:100px}.answers{grid-template-columns:1fr}.answer{min-height:50px}.question-card{padding:16px}.status{font-size:.8rem}}
+</style>
+</head>
+<body>
+<main class="game">
+<header><div class="eyebrow">HERO QUEST · AI KNOWLEDGE TRIAL</div><h1>⚔️ 勇者討伐惡龍 🐉</h1><p class="sub">答對發動攻擊，答錯就會受到惡龍反擊！撐過 10 道人工智慧試煉。</p></header>
+<section class="arena" aria-label="戰鬥狀態">
+  <div class="fighter"><div class="name">🛡️ 勇者</div><div class="role">知識守護者</div><div class="sprite" id="hero">🧙🏻‍♂️</div><div class="hp-label"><span>勇者 HP</span><strong id="heroNum">100 / 100</strong></div><div class="bar"><div class="fill" id="heroBar"></div></div></div>
+  <div class="fighter"><div class="name">🐲 混沌惡龍</div><div class="role">古代知識試煉者</div><div class="sprite" id="dragon">🐉</div><div class="hp-label"><span>惡龍 HP</span><strong id="dragonNum">100 / 100</strong></div><div class="bar"><div class="fill dragon-fill" id="dragonBar"></div></div></div>
+  <div class="combat-text" id="combatText">-20 HP!</div>
+</section>
+<div class="status"><span id="progress">挑戰進度：第 1 / 10 題</span><span id="score">目前得分：0 分</span><span>答對 +10 分｜每次傷害 20 HP</span></div>
+<section class="question-card" id="quiz">
+ <div class="qtop"><span class="pill" id="qnum">第 1 題</span><span class="pill">AI 知識試煉</span></div>
+ <div class="qtext" id="question"></div>
+ <div class="answers" id="answers"></div>
+ <div class="feedback" id="feedback" aria-live="polite"></div>
+ <div class="nextrow"><button class="primary" id="next" disabled>下一題 →</button></div>
+</section>
+<section class="end" id="end"><div class="end-emoji" id="endEmoji">🏆</div><h2 id="endTitle">冒險結束</h2><div class="score-big" id="finalScore">總分：0 / 100</div><p id="endMessage"></p><button class="primary" id="restart">再次挑戰 ↻</button></section>
+<div class="small">題目取自你提供的《最新人工智慧概論－AIL 國際認證 Specialist 選擇題》PDF，挑選 10 題作為遊戲題庫。</div>
+</main>
+<script>
+const questions = [
+ {n:1,q:"智慧製造中，「標準化作業」的英文簡稱為什麼？",a:["AGV","SOP","CPS","Internet"],correct:1,why:"SOP 是 Standard Operating Procedure（標準作業程序）的縮寫。"},
+ {n:3,q:"機器學習有三種主要類型：監督學習、非監督學習和哪一種學習？",a:["自主學習","優化學習","重複學習","強化學習"],correct:3,why:"題庫答案是「強化學習」。"},
+ {n:5,q:"「智慧家居」的英文是什麼？",a:["Internet home","Internet house","smart stay","smart home"],correct:3,why:"智慧家居的英文是 smart home。"},
+ {n:8,q:"在人工神經網路（ANN）中，扮演生物神經模型突觸角色、調節神經元影響程度的是什麼？",a:["權重","輸出通道","輸入通道","細胞體"],correct:0,why:"權重會調節一個神經元對另一個神經元的影響程度。"},
+ {n:9,q:"依 SAE 的自動駕駛分級，「完全自動駕駛」是指哪一級？",a:["等級 0","等級 4","等級 5","等級 1"],correct:2,why:"依照這份題庫，答案是等級 5（Level 5）。"},
+ {n:10,q:"強化學習使用機器的個別歷史和經驗來做決定，其經典應用是什麼？",a:["文字處理","遊戲娛樂","資料採擷","自動控制"],correct:1,why:"題庫將「遊戲娛樂」列為強化學習的經典應用。"},
+ {n:12,q:"被視為人工智慧核心技術之一、主要使用歸納而非演繹的是什麼？",a:["強化學習","機器學習","推薦引擎","搜尋引擎"],correct:1,why:"題庫答案是機器學習。"},
+ {n:15,q:"數位圖像經採樣和數位化後，二維陣列中的元素稱為什麼？",a:["位元組（byte）","串流（stream）","位元圖（bit map）","圖元（pixel）"],correct:3,why:"數位影像中的基本元素稱為圖元（pixel）。"},
+ {n:25,q:"智慧家居透過哪一種技術將家中的照明、窗簾、空調等設備連接在一起？",a:["社交網","物聯網","內聯網","互聯網"],correct:1,why:"題庫答案是物聯網（IoT）。"},
+ {n:50,q:"人工智慧的英文縮寫是什麼？",a:["BI","APP","DI","AI"],correct:3,why:"Artificial Intelligence 的縮寫是 AI。"}
+];
+let index=0, heroHP=100, dragonHP=100, points=0, locked=false;
+const $=id=>document.getElementById(id);
+function render(){
+ const q=questions[index]; $('qnum').textContent=`第 ${index+1} 題`; $('progress').textContent=`挑戰進度：第 ${index+1} / ${questions.length} 題`;
+ $('question').textContent=q.q; $('answers').innerHTML=''; $('feedback').textContent=''; $('feedback').className='feedback'; $('next').disabled=true; $('next').textContent=index===questions.length-1?'查看戰鬥結果 →':'下一題 →'; locked=false;
+ q.a.forEach((answer,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=`${'ABCD'[i]}. ${answer}`;b.onclick=()=>choose(i,b);$('answers').appendChild(b)});
+}
+function bars(){ $('heroNum').textContent=`${heroHP} / 100`; $('dragonNum').textContent=`${dragonHP} / 100`; $('heroBar').style.width=heroHP+'%';$('dragonBar').style.width=dragonHP+'%';$('score').textContent=`目前得分：${points} 分`; }
+function animate(id,cls){const el=$(id);el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);setTimeout(()=>el.classList.remove(cls),750)}
+function floatText(text){const el=$('combatText');el.textContent=text;el.classList.remove('show');void el.offsetWidth;el.classList.add('show')}
+function choose(i,btn){
+ if(locked)return;locked=true;const q=questions[index], all=[...document.querySelectorAll('.answer')];all.forEach(b=>b.disabled=true);
+ if(i===q.correct){btn.classList.add('correct');points+=10;dragonHP=Math.max(0,dragonHP-20);animate('hero','attack');animate('dragon','hurt');floatText('⚔️ -20 惡龍 HP！');$('feedback').textContent='答對了！'+q.why;$('feedback').className='feedback good'}
+ else{btn.classList.add('wrong');all[q.correct].classList.add('correct');heroHP=Math.max(0,heroHP-20);animate('dragon','attack');animate('hero','hurt');floatText('🔥 -20 勇者 HP！');$('feedback').textContent='答錯了！'+q.why;$('feedback').className='feedback bad'}
+ bars();$('next').disabled=false;
+}
+function finish(){
+ $('quiz').style.display='none';$('end').classList.add('show');$('finalScore').textContent=`總分：${points} / 100`;
+ let win=dragonHP===0&&heroHP>0;
+ if(win){$('endEmoji').textContent='🏆';$('endTitle').textContent='勝利！惡龍被擊敗了！';$('endMessage').textContent=`勇者成功守護王國！你答對 ${points/10} 題，剩餘勇者血量 ${heroHP} HP。`;}
+ else if(heroHP===0){$('endEmoji').textContent='💀';$('endTitle').textContent='挑戰失敗！勇者倒下了';$('endMessage').textContent=`惡龍仍然盤踞在王國。你答對 ${points/10} 題，惡龍剩餘 ${dragonHP} HP。再磨練知識後回來挑戰吧！`;}
+ else{$('endEmoji').textContent='📜';$('endTitle').textContent='試煉結束！';$('endMessage').textContent=`十道題目已完成，但惡龍尚未被擊敗。你答對 ${points/10} 題，勇者剩餘 ${heroHP} HP、惡龍剩餘 ${dragonHP} HP。`;}
+}
+$('next').onclick=()=>{if(heroHP===0||dragonHP===0||index===questions.length-1){finish();return}index++;render()};
+$('restart').onclick=()=>{index=0;heroHP=100;dragonHP=100;points=0;$('quiz').style.display='block';$('end').classList.remove('show');bars();render();window.scrollTo({top:0,behavior:'smooth'})};
+bars();render();
+</script>
+</body></html>
